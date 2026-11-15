@@ -1,0 +1,7 @@
+# Explicit allowlist: never send archives, databases or credentials to the builder.
+**
+!Dockerfile
+!requirements.txt
+!*.py
+!docs/
+!docs/corpus.json

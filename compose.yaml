@@ -1,0 +1,55 @@
+name: fire-signal-agreement
+
+services:
+  analyst:
+    image: ${VLLM_IMAGE:-vllm/vllm-openai:v0.14.1}
+    gpus: all
+    shm_size: "2gb"
+    command:
+      - --model
+      - ${VLLM_MODEL:-Qwen/Qwen2.5-1.5B-Instruct}
+      - --dtype
+      - half
+      - --max-model-len
+      - "4096"
+      - --gpu-memory-utilization
+      - "0.85"
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8000"
+    volumes:
+      - model-cache:/root/.cache/huggingface
+    healthcheck:
+      test:
+        - CMD
+        - python3
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=5)"
+      interval: 15s
+      timeout: 10s
+      start_period: 15m
+      retries: 20
+
+  dashboard:
+    image: fire-signal-agreement:local
+    build: .
+    ports:
+      - "127.0.0.1:${DASHBOARD_PORT:-8501}:8501"
+    environment:
+      FIRE_DB: /app/data/fire.sqlite
+      VLLM_BASE_URL: http://analyst:8000/v1
+      VLLM_MODEL: ${VLLM_MODEL:-Qwen/Qwen2.5-1.5B-Instruct}
+    volumes:
+      - type: bind
+        source: ./data/fire.sqlite
+        target: /app/data/fire.sqlite
+        read_only: true
+        bind:
+          create_host_path: false
+    depends_on:
+      analyst:
+        condition: service_healthy
+
+volumes:
+  model-cache:

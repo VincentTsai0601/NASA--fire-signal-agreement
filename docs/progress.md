@@ -1,5 +1,22 @@
 # Implementation record
 
+## Docker deployment and author credit
+
+Added Dockerfile, a build-context allowlist, and Compose services for Streamlit
+and Qwen2.5-1.5B via vLLM. SQLite is mounted read-only; the Hugging Face model cache
+uses a persistent volume. Dashboard startup waits for analyst readiness. Deployment,
+database rebuild, smoke-test and image-export instructions are in `docs/docker.md`.
+README now credits Min-Sheng Tsai as requested.
+
+Verified: Compose configuration and internal API/model/mount checks, dashboard image
+build, 91 passing host tests, and real-data container AppTest (155 weekly rows;
+2025 totals 1,881 / 2,104 / 16,620). A temporary dashboard-only deployment passed its
+HTTP health check. Independent deployment review found no material issues.
+Full-system execution remains unverified: Docker GPU probes fail with
+`could not select device driver "" with capabilities: [[gpu]]` even though an
+NVIDIA runtime appears in Docker info. Host GPU/container runtime setup needs to
+work before starting the analyst and running the container smoke benchmark.
+
 Plan: `2026-11-15-fire-signal-agreement.md`
 
 - Pipeline: implemented and rebuilt on both original standard archives; 155 weeks, 104 train / 51 test. One weekly count reconciled directly against raw rows.

@@ -1,8 +1,15 @@
 # Fire Signal Agreement
 
+Author: **Min-Sheng Tsai**
+
 Compare weekly Terra/Aqua MODIS and SNPP VIIRS satellite hotspot detections within 37–42°N, 125–119°W. Includes a calendar, held-out calibration charts, a raw evidence panel, and an optional bounded vLLM analyst.
 
 ## Run
+
+For a containerized dashboard and Qwen analyst, run `docker compose up --build`.
+This requires the existing `data/fire.sqlite`, an NVIDIA GPU and NVIDIA Container
+Toolkit. Open http://localhost:8501 once both services are ready. See
+[Docker deployment](docs/docker.md) for setup, persistent storage and verification.
 
 ```bash
 python -m venv .venv
