@@ -1,0 +1,163 @@
+{
+  "checked_at": "2026-11-15T08:58:13.348747+00:00",
+  "passed": true,
+  "cases": [
+    {
+      "question": "For linear regression, which 2025 week had the largest absolute calibration error?",
+      "answer": "linear: largest absolute error in complete 2025 held-out weeks: week starting 2025-07-07 UTC; observed VIIRS=1,631, estimated VIIRS=760.72, absolute error=870.28, signed gap (observed \u2212 estimated)=870.28. Ties use the earliest week.\n\nEvidence: predictions: complete 2025 held-out weeks \u00b7 satellite hotspot detections\n\nSupported scope: 37\u201342\u00b0N, 125\u2013119\u00b0W; complete UTC weeks in 2023\u20132025.",
+      "passed": true,
+      "model_replies": [
+        {
+          "stage": "route",
+          "response": {
+            "task": "largest_error",
+            "model": "linear"
+          }
+        }
+      ],
+      "expected": "linear: largest absolute error in complete 2025 held-out weeks: week starting 2025-07-07 UTC; observed VIIRS=1,631, estimated VIIRS=760.72, absolute error=870.28, signed gap (observed \u2212 estimated)=870.28. Ties use the earliest week."
+    },
+    {
+      "question": "Did XGBoost beat linear regression on 2025 held-out MAE?",
+      "answer": "XGBoost has lower MAE. Linear MAE=163.96; XGBoost MAE=80.81. Lower MAE is better.\n\nEvidence: metrics: complete 2025 held-out weeks \u00b7 satellite hotspot detections\n\nSupported scope: 37\u201342\u00b0N, 125\u2013119\u00b0W; complete UTC weeks in 2023\u20132025.",
+      "passed": true,
+      "model_replies": [
+        {
+          "stage": "route",
+          "response": {
+            "task": "compare_mae"
+          }
+        }
+      ],
+      "expected": "XGBoost has lower MAE. Linear MAE=163.96; XGBoost MAE=80.81. Lower MAE is better."
+    },
+    {
+      "question": "Why can MODIS and VIIRS sensors report different counts? Cite NASA documentation.",
+      "answer": "Source-based notes (curated paraphrases):\n\nVIIRS 375 m data complements MODIS detections. Its improved resolution responds better to relatively small fires and maps large fire perimeters in more detail, so MODIS and VIIRS counts can differ.\n\nMODIS records locate the center of a 1 km hotspot pixel, not necessarily an individual fire. One pixel can contain multiple fires. Satellite hotspot detections are not a count of distinct fires.\n\nEvidence: [VIIRS spatial resolution](https://firms.modaps.eosdis.nasa.gov/content/descriptions/FIRMS_VIIRS_Firehotspots.html); [MODIS pixel definition](https://firms2.modaps.eosdis.nasa.gov/descriptions/FIRMS_MODIS_Firehotspots.html)\n\nSupported scope: 37\u201342\u00b0N, 125\u2013119\u00b0W; complete UTC weeks in 2023\u20132025.",
+      "passed": true,
+      "model_replies": [
+        {
+          "stage": "route",
+          "response": {
+            "task": "explain"
+          }
+        },
+        {
+          "stage": "explain",
+          "response": {
+            "answer": "",
+            "kind": "method",
+            "citations": [
+              "docs:1",
+              "docs:3"
+            ]
+          }
+        }
+      ],
+      "expected": "Retrieved NASA source citation and sensor explanation"
+    }
+  ],
+  "model": "Qwen/Qwen2.5-1.5B-Instruct",
+  "benchmark_version": 1,
+  "scope_checks": [
+    {
+      "question": "How many fires occurred in Texas in 2025?",
+      "answer": "This question is outside the supported analysis: study box 37\u201342\u00b0N, 125\u2013119\u00b0W; complete UTC weeks in 2023\u20132025. No other geography or dates were evaluated.",
+      "passed": true,
+      "model_replies": []
+    },
+    {
+      "question": "Compare model accuracy for 2026.",
+      "answer": "This question is outside the supported analysis: study box 37\u201342\u00b0N, 125\u2013119\u00b0W; complete UTC weeks in 2023\u20132025. No other geography or dates were evaluated.",
+      "passed": true,
+      "model_replies": []
+    },
+    {
+      "question": "How many hotspots occurred across California in 2025?",
+      "answer": "This question is outside the supported analysis: study box 37\u201342\u00b0N, 125\u2013119\u00b0W; complete UTC weeks in 2023\u20132025. No other geography or dates were evaluated.",
+      "passed": true,
+      "model_replies": []
+    },
+    {
+      "question": "Show weekly counts for 2022.",
+      "answer": "This question is outside the supported analysis: study box 37\u201342\u00b0N, 125\u2013119\u00b0W; complete UTC weeks in 2023\u20132025. No other geography or dates were evaluated.",
+      "passed": true,
+      "model_replies": []
+    }
+  ],
+  "benchmark_cases": [
+    {
+      "question": "Which week was linear regression's worst miss in 2025?",
+      "answer": "linear: largest absolute error in complete 2025 held-out weeks: week starting 2025-07-07 UTC; observed VIIRS=1,631, estimated VIIRS=760.72, absolute error=870.28, signed gap (observed \u2212 estimated)=870.28. Ties use the earliest week.\n\nEvidence: predictions: complete 2025 held-out weeks \u00b7 satellite hotspot detections\n\nSupported scope: 37\u201342\u00b0N, 125\u2013119\u00b0W; complete UTC weeks in 2023\u20132025.",
+      "passed": true,
+      "expected": "linear: largest absolute error in complete 2025 held-out weeks: week starting 2025-07-07 UTC; observed VIIRS=1,631, estimated VIIRS=760.72, absolute error=870.28, signed gap (observed \u2212 estimated)=870.28. Ties use the earliest week.",
+      "model_replies": [
+        {
+          "stage": "route",
+          "response": {
+            "task": "largest_error",
+            "model": "linear"
+          }
+        }
+      ]
+    },
+    {
+      "question": "Which performed better, XGBoost or linear?",
+      "answer": "XGBoost has lower MAE. Linear MAE=163.96; XGBoost MAE=80.81. Lower MAE is better.\n\nEvidence: metrics: complete 2025 held-out weeks \u00b7 satellite hotspot detections\n\nSupported scope: 37\u201342\u00b0N, 125\u2013119\u00b0W; complete UTC weeks in 2023\u20132025.",
+      "passed": true,
+      "expected": "XGBoost has lower MAE. Linear MAE=163.96; XGBoost MAE=80.81. Lower MAE is better.",
+      "model_replies": [
+        {
+          "stage": "route",
+          "response": {
+            "task": "compare_mae"
+          }
+        }
+      ]
+    },
+    {
+      "question": "Do 100 hotspot detections mean 100 separate fires?",
+      "answer": "Source-based notes (curated paraphrases):\n\nMODIS records locate the center of a 1 km hotspot pixel, not necessarily an individual fire. One pixel can contain multiple fires. Satellite hotspot detections are not a count of distinct fires.\n\nVIIRS 375 m data complements MODIS detections. Its improved resolution responds better to relatively small fires and maps large fire perimeters in more detail, so MODIS and VIIRS counts can differ.\n\nEvidence: [MODIS pixel definition](https://firms2.modaps.eosdis.nasa.gov/descriptions/FIRMS_MODIS_Firehotspots.html); [VIIRS spatial resolution](https://firms.modaps.eosdis.nasa.gov/content/descriptions/FIRMS_VIIRS_Firehotspots.html)\n\nSupported scope: 37\u201342\u00b0N, 125\u2013119\u00b0W; complete UTC weeks in 2023\u20132025.",
+      "passed": true,
+      "expected": "MODIS records locate the center of a 1 km hotspot pixel, not necessarily an individual fire. One pixel can contain multiple fires. Satellite hotspot detections are not a count of distinct fires.",
+      "model_replies": [
+        {
+          "stage": "route",
+          "response": {
+            "task": "explain"
+          }
+        },
+        {
+          "stage": "explain",
+          "response": {
+            "answer": "",
+            "kind": "method",
+            "citations": [
+              "docs:1",
+              "docs:2"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "question": "How many fires occurred in Texas in 2025?",
+      "answer": "This question is outside the supported analysis: study box 37\u201342\u00b0N, 125\u2013119\u00b0W; complete UTC weeks in 2023\u20132025. No other geography or dates were evaluated.",
+      "passed": true,
+      "model_replies": [],
+      "expected": "Unsupported-scope refusal without model dispatch"
+    },
+    {
+      "question": "Compare model accuracy for 2026.",
+      "answer": "This question is outside the supported analysis: study box 37\u201342\u00b0N, 125\u2013119\u00b0W; complete UTC weeks in 2023\u20132025. No other geography or dates were evaluated.",
+      "passed": true,
+      "model_replies": [],
+      "expected": "Unsupported-scope refusal without model dispatch"
+    }
+  ],
+  "benchmark_summary": {
+    "passed": 5,
+    "total": 5
+  },
+  "review_note": "Numeric answers are checked against SQLite; the definition requires the curated pixel passage. Scope refusals test application guards, not model scope reasoning. These examples do not establish general routing accuracy."
+}

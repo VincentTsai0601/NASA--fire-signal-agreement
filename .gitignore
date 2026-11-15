@@ -1,0 +1,15 @@
+__pycache__/
+.pytest_cache/
+.venv/
+.env
+.env.*
+!.env.example
+.aws/
+.codex/
+.agents/
+*.csv
+data/*.sqlite
+data/*.sqlite-*
+*.mp4
+*.webm
+*.mkv

@@ -1,0 +1,82 @@
+{
+  "checked_at": "2026-11-15T07:20:41.862544+00:00",
+  "offline_passed": true,
+  "full_plan_complete": false,
+  "checks": {
+    "weekly_calendar": {
+      "status": "passed",
+      "train_weeks": 104,
+      "test_weeks": 51,
+      "total_weeks": 155
+    },
+    "metadata": {
+      "status": "passed"
+    },
+    "source_integrity": {
+      "status": "passed",
+      "actual_sha256": [
+        "e8c1ac0b5120bd9b4317aa985a68b756a29de4a9bf835da97c95249ff48d5d94",
+        "4cdd3a03a597b2689f5b0599049876ec91470af39342cdae88edb5ad4bf614b6"
+      ]
+    },
+    "raw_reconciliation": {
+      "status": "passed",
+      "start": "2025-08-04",
+      "end": "2025-08-10",
+      "actual": {
+        "terra_count": 41,
+        "aqua_count": 22,
+        "viirs_count": 318
+      },
+      "published": {
+        "terra_count": 41,
+        "aqua_count": 22,
+        "viirs_count": 318
+      }
+    },
+    "heldout_metrics": {
+      "status": "passed",
+      "errors": [],
+      "models": [
+        {
+          "model": "linear",
+          "status": "available",
+          "mae": 163.95746083195976,
+          "signed_mean_error": 36.95729770110321
+        },
+        {
+          "model": "median",
+          "status": "available",
+          "mae": 184.2941176470588,
+          "signed_mean_error": -82.88235294117646
+        },
+        {
+          "model": "xgboost",
+          "status": "available",
+          "mae": 80.8117322734758,
+          "signed_mean_error": -1.9551792518765319
+        }
+      ]
+    },
+    "xgboost_execution": {
+      "status": "passed",
+      "detail": "available"
+    },
+    "live_model_validation": {
+      "status": "not_run",
+      "detail": "Requires separate integration verification or supplied input"
+    },
+    "browser_rendering": {
+      "status": "not_run",
+      "detail": "Requires separate integration verification or supplied input"
+    },
+    "walkthrough_recording": {
+      "status": "not_run",
+      "detail": "Requires separate integration verification or supplied input"
+    },
+    "challenge_brief": {
+      "status": "not_run",
+      "detail": "Requires separate integration verification or supplied input"
+    }
+  }
+}

@@ -1,0 +1,81 @@
+{
+  "metadata": {
+    "schema_version": 1,
+    "evaluation": {
+      "features": [
+        "terra_count",
+        "aqua_count"
+      ],
+      "train_start": "2023-01-01",
+      "train_end": "2024-12-31",
+      "test_start": "2025-01-01",
+      "test_end": "2025-12-31",
+      "signed_mean_error": "estimate - observed",
+      "signed_gap": "observed - estimate",
+      "negative_estimates": "clip to zero",
+      "xgboost_parameters": {
+        "n_estimators": 60,
+        "max_depth": 2,
+        "learning_rate": 0.05,
+        "random_state": 42,
+        "n_jobs": 1,
+        "objective": "reg:squarederror"
+      },
+      "package_versions": {
+        "pandas": "2.2.3",
+        "numpy": "1.26.4",
+        "scikit-learn": "1.5.2",
+        "xgboost": "3.4.1"
+      }
+    },
+    "bounds": {
+      "south": 37,
+      "north": 42,
+      "west": -125,
+      "east": -119
+    },
+    "sources": [
+      {
+        "path": "fire_archive_M-C61_848110.csv",
+        "sha256": "e8c1ac0b5120bd9b4317aa985a68b756a29de4a9bf835da97c95249ff48d5d94",
+        "rows": 420160,
+        "study_box_rows": 18380,
+        "included_rows": 16645,
+        "min_date": "2023-01-01",
+        "max_date": "2026-08-31"
+      },
+      {
+        "path": "fire_archive_SV-C2_848111.csv",
+        "sha256": "4cdd3a03a597b2689f5b0599049876ec91470af39342cdae88edb5ad4bf614b6",
+        "rows": 1641209,
+        "study_box_rows": 63990,
+        "included_rows": 58681,
+        "min_date": "2023-01-01",
+        "max_date": "2026-07-31"
+      }
+    ],
+    "week_start_min": "2023-01-02",
+    "week_start_max": "2025-12-22",
+    "train_weeks": 104,
+    "test_weeks": 51,
+    "metric": "satellite hotspot detections",
+    "zero_meaning": "Zero supplied archive records; observing coverage and absence of fire are unknown."
+  },
+  "metrics": {
+    "median": {
+      "status": "available",
+      "mae": 184.2941176470588,
+      "signed_mean_error": -82.88235294117646
+    },
+    "linear": {
+      "status": "available",
+      "mae": 163.95746083195976,
+      "signed_mean_error": 36.95729770110321
+    },
+    "xgboost": {
+      "status": "available",
+      "mae": 80.8117322734758,
+      "signed_mean_error": -1.9551792518765319
+    }
+  }
+}

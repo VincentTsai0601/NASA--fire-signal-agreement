@@ -1,0 +1,26 @@
+{
+  "verification_type": "Streamlit in-process replay of saved live Qwen responses",
+  "live_network_used": false,
+  "browser_used": false,
+  "recording_created": false,
+  "live_smoke_checked_at": "2026-11-15T08:06:39.620734+00:00",
+  "passed": true,
+  "year_filter_checked": [
+    2024,
+    2025
+  ],
+  "cases": [
+    {
+      "question": "For linear regression, which 2025 week had the largest absolute calibration error?",
+      "rendered_expected_answer": true
+    },
+    {
+      "question": "Did XGBoost beat linear regression on 2025 held-out MAE?",
+      "rendered_expected_answer": true
+    },
+    {
+      "question": "Why can MODIS and VIIRS sensors report different counts? Cite NASA documentation.",
+      "rendered_expected_answer": true
+    }
+  ]
+}

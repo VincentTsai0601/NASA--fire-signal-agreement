@@ -1,0 +1,27 @@
+{
+  "checked_at": "2026-11-15T08:33:21.441375+00:00",
+  "verification_type": "application guard; no model or database access",
+  "passed": true,
+  "cases": [
+    {
+      "question": "How many fires occurred in Texas in 2025?",
+      "answer": "This question is outside the supported analysis: study box 37\u201342\u00b0N, 125\u2013119\u00b0W; complete UTC weeks in 2023\u20132025. No other geography or dates were evaluated.",
+      "passed": true
+    },
+    {
+      "question": "Compare model accuracy for 2026.",
+      "answer": "This question is outside the supported analysis: study box 37\u201342\u00b0N, 125\u2013119\u00b0W; complete UTC weeks in 2023\u20132025. No other geography or dates were evaluated.",
+      "passed": true
+    },
+    {
+      "question": "How many hotspots occurred across California in 2025?",
+      "answer": "This question is outside the supported analysis: study box 37\u201342\u00b0N, 125\u2013119\u00b0W; complete UTC weeks in 2023\u20132025. No other geography or dates were evaluated.",
+      "passed": true
+    },
+    {
+      "question": "Show weekly counts for 2022.",
+      "answer": "This question is outside the supported analysis: study box 37\u201342\u00b0N, 125\u2013119\u00b0W; complete UTC weeks in 2023\u20132025. No other geography or dates were evaluated.",
+      "passed": true
+    }
+  ]
+}

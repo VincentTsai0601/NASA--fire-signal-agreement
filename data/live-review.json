@@ -1,0 +1,41 @@
+{
+  "smoke_checked_at": "2026-11-15T08:06:39.620734+00:00",
+  "model": "Qwen/Qwen2.5-1.5B-Instruct",
+  "evidence_origin": "user-executed live smoke test; saved report inspected locally",
+  "automated_passed": true,
+  "numeric_answers_reviewed": true,
+  "methodological_answer_reviewed": true,
+  "review_scope": "Three demo cases only. Numeric text reconciled with SQLite; methodological text matches selected curated NASA paraphrases.",
+  "corrected_live_run": "passed",
+  "previous_run_review": {
+    "smoke_checked_at": "2026-11-15T08:03:08.312204+00:00",
+    "methodological_answer_reviewed": false,
+    "reason": "Generated prose contained unsupported individual-fire counting claim; corrected output uses source passages."
+  },
+  "limitations": [
+    "Open-ended routing accuracy is not established by these three cases.",
+    "Challenge brief and walkthrough recording remain pending."
+  ],
+  "dashboard_questions": {
+    "status": "passed",
+    "evidence_origin": "user supplied rendered outputs from the running Streamlit dashboard",
+    "cases": 3
+  },
+  "scope_robustness": {
+    "user_reported_result": "failed: unsupported requests returned 2025 study-box outputs",
+    "application_guard_verification": "passed offline; see data/scope-verification.json",
+    "expanded_live_smoke": "passed; see data/qwen-1.5b-benchmark.json",
+    "limitations": "Guards cover spelled-out US states and explicit years, not arbitrary geographic language."
+  },
+  "benchmark": {
+    "report": "data/qwen-1.5b-benchmark.json",
+    "checked_at": "2026-11-15T08:58:13.348747+00:00",
+    "model": "Qwen/Qwen2.5-1.5B-Instruct",
+    "version": 1,
+    "passed": true,
+    "summary": {
+      "passed": 5,
+      "total": 5
+    }
+  }
+}

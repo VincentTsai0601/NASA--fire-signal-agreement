@@ -1,0 +1,6 @@
+[
+ {"section":"MODIS pixel definition","url":"https://firms2.modaps.eosdis.nasa.gov/descriptions/FIRMS_MODIS_Firehotspots.html","text":"MODIS records locate the center of a 1 km hotspot pixel, not necessarily an individual fire. One pixel can contain multiple fires. Satellite hotspot detections are not a count of distinct fires."},
+ {"section":"VIIRS spatial resolution","url":"https://firms.modaps.eosdis.nasa.gov/content/descriptions/FIRMS_VIIRS_Firehotspots.html","text":"VIIRS 375 m data complements MODIS detections. Its improved resolution responds better to relatively small fires and maps large fire perimeters in more detail, so MODIS and VIIRS counts can differ."},
+ {"section":"Archive latency","url":"https://firms.modaps.eosdis.nasa.gov/content/active_fire/","text":"FIRMS replaces near real time NRT archive records with standard MODIS and VIIRS products as they become available, usually after two to three months but possibly up to five months."},
+ {"section":"Local project scope","url":"2026-11-15-fire-signal-agreement.md","text":"The supplied project plan limits this analysis to 37–42 N and 125–119 W, complete weeks in 2023–2025, training in 2023–2024 and testing in 2025. A zero means zero supplied archive records, not absence of fire or confirmed observing coverage."}
+]
