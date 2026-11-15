@@ -67,23 +67,53 @@ def build_weekly(modis_path, viirs_path):
     return out
 
 
+def calibration_masks(weekly):
+    dates = pd.to_datetime(weekly.week_start)
+    monday = dates.dt.dayofweek == 0
+    end = dates + pd.Timedelta(days=6)
+    train = monday & (dates >= '2023-01-01') & (end < '2025-01-01')
+    test = monday & (dates.dt.year == 2025) & (end.dt.year == 2025)
+    return train, test
+
+
+def calibrate(weekly):
+    """Map MODIS inputs to a VIIRS reference scale; fitted years are not validation."""
+    train_mask, test_mask = calibration_masks(weekly)
+    train = weekly[train_mask]
+    if train.empty:
+        raise ValueError('Training weeks in 2023–2024 are required')
+    selected = weekly[train_mask | test_mask].copy()
+    result = selected[['week_start'] + FEATURES + ['viirs_count']].copy()
+    models = {'linear': LinearRegression()}
+    try:
+        from xgboost import XGBRegressor
+        models['xgboost'] = XGBRegressor(**XGBOOST_PARAMETERS)
+    except ImportError:
+        pass
+    for name, model in models.items():
+        model.fit(train[FEATURES], train.viirs_count)
+        result[f'{name}_estimate'] = np.maximum(model.predict(selected[FEATURES]), 0)
+    result['evaluation_status'] = np.where(train_mask.loc[selected.index], 'training_fit', 'held_out')
+    result['reference_sensor'] = 'SNPP VIIRS'
+    result['metric'] = 'VIIRS-equivalent hotspot detections'
+    result['train_start'] = '2023-01-01'
+    result['train_end'] = '2024-12-31'
+    return result.reset_index(drop=True)
+
+
 def evaluate(weekly):
     w = weekly.copy()
-    dates = pd.to_datetime(w.week_start)
-    complete = (dates.dt.dayofweek == 0) & ((dates+pd.Timedelta(days=6)).dt.year == dates.dt.year)
-    # Weeks spanning 2023/2024 remain wholly within the training period.
-    train_mask = (dates >= '2023-01-01') & (dates+pd.Timedelta(days=6) < pd.Timestamp('2025-01-01')) & (dates.dt.dayofweek == 0)
-    test_mask = complete & (dates.dt.year == 2025)
+    train_mask, test_mask = calibration_masks(w)
     train, test = w[train_mask], w[test_mask]
     if train.empty or test.empty: raise ValueError('Both training and held-out weeks are required')
     result = test.copy().reset_index(drop=True)
-    estimates = {'median':np.full(len(test),train.viirs_count.median()),'linear':LinearRegression().fit(train[FEATURES],train.viirs_count).predict(test[FEATURES])}
+    calibrated = calibrate(w)
+    heldout = calibrated[calibrated.evaluation_status == 'held_out']
+    estimates = {'median': np.full(len(test), train.viirs_count.median())}
+    estimates.update({column.removesuffix('_estimate'): heldout[column].to_numpy()
+                      for column in heldout if column.endswith('_estimate')})
     scores = {}
-    try:
-        from xgboost import XGBRegressor
-        model = XGBRegressor(**XGBOOST_PARAMETERS)
-        estimates['xgboost'] = model.fit(train[FEATURES],train.viirs_count).predict(test[FEATURES])
-    except ImportError:
+    if 'xgboost' not in estimates:
         scores['xgboost'] = {'status':'unavailable: install xgboost','mae':None,'signed_mean_error':None}
     for name, values in estimates.items():
         result[f'{name}_estimate'] = np.maximum(values,0)
@@ -93,13 +123,30 @@ def evaluate(weekly):
     return result, scores
 
 
-def write_outputs(weekly, predictions, metrics, db_path):
+def write_outputs(weekly, predictions, metrics, db_path, harmonized=None):
+    metadata = dict(weekly.attrs['metadata'])
+    if harmonized is not None:
+        metadata['harmonization'] = {
+            'reference_sensor': 'SNPP VIIRS', 'metric': 'VIIRS-equivalent hotspot detections',
+            'features': FEATURES, 'train_start': '2023-01-01', 'train_end': '2024-12-31',
+            'models': [column.removesuffix('_estimate') for column in harmonized if column.endswith('_estimate')],
+            'parameters': {'linear': LinearRegression().get_params(), 'xgboost': XGBOOST_PARAMETERS},
+            'package_versions': package_versions(), 'negative_estimates': 'clip to zero',
+            'interpretation': 'MODIS-derived expected VIIRS-equivalent detections; not unique fires or coverage-corrected activity',
+            'evaluation_status': {'training_fit': '2023–2024 in-sample fit; not independent validation',
+                                  'held_out': '2025 targets excluded from fitting'},
+        }
     Path(db_path).parent.mkdir(parents=True,exist_ok=True)
     with sqlite3.connect(db_path) as conn:
         weekly.to_sql('weekly',conn,if_exists='replace',index=False)
         predictions.to_sql('predictions',conn,if_exists='replace',index=False)
+        if harmonized is not None:
+            harmonized.to_sql('harmonized',conn,if_exists='replace',index=False)
+        else:
+            conn.execute('DROP TABLE IF EXISTS harmonized')
         pd.DataFrame([{'model':k,**v} for k,v in metrics.items()]).to_sql('metrics',conn,if_exists='replace',index=False)
-        pd.DataFrame([{'json':json.dumps(weekly.attrs['metadata'])}]).to_sql('metadata',conn,if_exists='replace',index=False)
+        pd.DataFrame([{'json':json.dumps(metadata)}]).to_sql('metadata',conn,if_exists='replace',index=False)
+    return metadata
 
 
 def main():
@@ -110,7 +157,7 @@ def main():
     args = parser.parse_args()
     weekly = build_weekly(args.modis,args.viirs)
     predictions, metrics = evaluate(weekly)
-    write_outputs(weekly,predictions,metrics,args.output)
-    print(json.dumps({'metadata':weekly.attrs['metadata'],'metrics':metrics},indent=2))
+    metadata = write_outputs(weekly,predictions,metrics,args.output,harmonized=calibrate(weekly))
+    print(json.dumps({'metadata':metadata,'metrics':metrics},indent=2))
 
 if __name__ == '__main__': main()

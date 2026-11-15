@@ -23,6 +23,8 @@ dashboard image automatically on the first run; use `--build` after source chang
 Stop an existing host-side Qwen server before startup if it occupies GPU memory.
 If another dashboard already uses port 8501, run
 `DASHBOARD_PORT=8502 docker compose up` and open http://localhost:8502.
+This workspace has an ignored local `.env` with `DASHBOARD_PORT=18501`, preserving
+the existing host dashboard on 8501. Its Docker dashboard is at http://localhost:18501.
 
 The default analyst is `Qwen/Qwen2.5-1.5B-Instruct`, using half precision, a
 4096-token context and GPU memory utilization 0.85. The vLLM image defaults to
@@ -104,10 +106,39 @@ and [Docker Compose GPU support](https://docs.docker.com/compose/how-tos/gpu-sup
 
 ## Verification status
 
-The dashboard image was built and tested against the existing SQLite database.
-Container rendering matched the 2025 totals, and a temporary dashboard deployment
-passed its HTTP health check. All 91 host application tests passed. Full Qwen
-startup and the containerized analyst benchmark have not been verified: Docker
-GPU access on this host fails with `could not select device driver "" with
-capabilities: [[gpu]]`. Resolve host GPU/container runtime configuration before
-claiming that the complete deployment runs successfully.
+Initial diagnosis: the RTX 3090 was visible to host `nvidia-smi`, but NVIDIA
+Container Toolkit was missing despite an existing Docker runtime entry. The user
+installed and configured the toolkit; a CUDA container now detects the RTX 3090
+successfully. On this Ubuntu host, the NVIDIA package repository is configured.
+For the same initial issue on another machine, the repair is:
+
+```bash
+sudo apt-get install -y nvidia-container-toolkit
+sudo nvidia-ctk runtime configure --runtime=docker
+sudo systemctl restart docker
+docker run --rm --gpus all nvidia/cuda:12.1.0-base-ubuntu22.04 nvidia-smi
+```
+
+The Docker restart interrupts running containers. Installation requires local sudo
+authentication; do not share passwords in chat. Follow the
+[NVIDIA installation guide](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html)
+if the package repository is absent on another machine.
+
+The updated dashboard image was built and tested against the existing SQLite
+database. Container rendering verified the calibrated XGBoost calendar, year
+selection, shared color scale and observed 2025 totals. Both Compose services
+reached healthy status with Qwen running on the RTX 3090. All 102 host application
+tests passed. The containerized analyst benchmark passed 5/5, all three demo cases
+passed, and all four application scope checks passed. Evidence is saved in
+`data/docker-smoke.json`.
+
+The running dashboard's Ask button matched all three live smoke answers in
+Streamlit AppTest, saved in `data/docker-dashboard-check.json`. This verifies
+the real application with a live model inside Docker; it is not an independently
+operated browser or a walkthrough recording. Existing host-side Qwen weights
+were copied into the named model cache volume, so no additional model download
+was needed for this deployment.
+
+Persistence and startup were also verified by stopping both services and running
+`docker compose up -d --wait`. Both returned healthy, live Qwen connectivity passed,
+and all 155 calibrated weeks and 51 held-out evaluation weeks remained available.

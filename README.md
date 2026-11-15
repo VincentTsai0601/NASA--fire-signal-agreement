@@ -2,7 +2,36 @@
 
 Author: **Min-Sheng Tsai**
 
-Compare weekly Terra/Aqua MODIS and SNPP VIIRS satellite hotspot detections within 37–42°N, 125–119°W. Includes a calendar, held-out calibration charts, a raw evidence panel, and an optional bounded vLLM analyst.
+Compare weekly Terra/Aqua MODIS and SNPP VIIRS satellite hotspot detections within 37–42°N, 125–119°W. Includes a calibrated burning calendar, held-out calibration charts, a raw evidence panel, and an optional bounded vLLM analyst.
+
+## Calibrated burning calendar
+
+The calendar now offers **Calibrated MODIS (VIIRS-equivalent)** and **Observed
+VIIRS** layers. Choose XGBoost or linear regression to translate Terra/Aqua weekly
+counts onto a shared VIIRS reference scale. Estimates are saved separately from
+observations for all 155 supported weeks; sensors are never added together.
+
+Both models train on the same 104 weeks in 2023–2024. Those calendar values are
+explicitly labeled **training-period fits**, not independent validation. The 51
+complete 2025 weeks remain **held out**. Rebuilding the original archives after
+this change reproduced every previous held-out prediction and metric exactly.
+
+Colors use a sequential light-to-dark blue ramp with numeric labels and a legend.
+Calendar labels select black or white text using relative luminance to maintain
+at least 4.5:1 contrast against their cell backgrounds; this is not a full
+application accessibility audit.
+The scale stays fixed across years for each layer/model. Missing and excluded
+weeks remain blank. The harmonized CSV includes observed counts, model-specific
+estimates, training/held-out status, reference sensor, units, training dates,
+parameters, software versions, study bounds, and source hashes.
+
+Calibrated values are expected **VIIRS-equivalent hotspot detections**, not unique
+fires, burned area or forecasts. Fractional estimates and nonzero estimates for
+zero MODIS records are possible. Unknown observing coverage is not corrected.
+This regional prototype does not establish transferability to other areas or
+historical MODIS-only periods. The analyst continues to answer from the existing
+observed-count and held-out evaluation tables. Rebuild the database with the
+pipeline command below to add the calibrated layer to an older checkout.
 
 ## Run
 
@@ -10,6 +39,16 @@ For a containerized dashboard and Qwen analyst, run `docker compose up --build`.
 This requires the existing `data/fire.sqlite`, an NVIDIA GPU and NVIDIA Container
 Toolkit. Open http://localhost:8501 once both services are ready. See
 [Docker deployment](docs/docker.md) for setup, persistent storage and verification.
+The current local deployment uses http://localhost:18501 because the existing
+host app occupies port 8501; the ignored local `.env` sets `DASHBOARD_PORT=18501`,
+so plain `docker compose up` reuses that port.
+
+The GPU-backed Docker deployment passed the same five-case analyst benchmark
+with Qwen2.5-1.5B (**5/5**), all three demo cases, and four application scope checks.
+The running dashboard's Ask button also matched all three live answers using
+Streamlit AppTest inside the container. This is live integration verification,
+not a browser recording. Evidence: `data/docker-smoke.json` and
+`data/docker-dashboard-check.json`.
 
 ```bash
 python -m venv .venv
@@ -74,7 +113,7 @@ python -m pytest -q
 python smoke_test.py  # optional; requires a running model; exits nonzero on failure
 ```
 
-The suite uses synthetic archives and temporary SQLite databases. It covers ingestion rejection, content-based archive identification, week and geographic boundaries, train/test target isolation, exact SQLite answers, normalized dates, geography rejection, retrieval, tool and citation restrictions, grounded numeric rendering, live smoke failure detection, Streamlit loading/year filtering, missing data and analyst-unavailable states. Latest verification: **91 passed**; installed Streamlit/Altair dependencies emit deprecation warnings.
+The suite uses synthetic archives and temporary SQLite databases. It covers ingestion rejection, content-based archive identification, week and geographic boundaries, train/test target isolation, exact SQLite answers, normalized dates, geography rejection, retrieval, tool and citation restrictions, grounded numeric rendering, live smoke failure detection, Streamlit loading/year filtering, missing data and analyst-unavailable states. Calibration coverage also checks all-year estimates, unchanged held-out outputs, optional-model behavior, calendar layers/scales, provenance exports, label contrast, and tamper detection. Latest verification: **102 passed**; installed Streamlit/Altair dependencies emit deprecation warnings.
 
 Verified reference answers to all three demo questions are available in the dashboard and [docs/demo-results.md](docs/demo-results.md), without a language model. The live smoke test saves `data/live-smoke.json`, checks the first two answers against computed results, checks source linkage for the third, checks four unsupported-scope requests without model dispatch, and exits nonzero on a failed case. Methodological prose still needs human accuracy review. Each case includes `model_replies`, the model’s completion JSON in order, to diagnose rejected tool arguments or repeated calls. Prompts are not recorded.
 
@@ -96,14 +135,14 @@ Detailed launch commands, narration, and recording checks: [docs/demo-walkthroug
 
 Walkthrough script:
 
-1. Start with 2025 in the weekly calendar. Explain that Monday cells represent whole UTC weeks, and zeros describe supplied records only.
+1. Start with 2025 in the calibrated weekly calendar. Compare the calibrated MODIS and observed VIIRS layers. Explain that Monday cells represent whole UTC weeks; observed zeros describe supplied records only, while model estimates may be fractional or nonzero for zero MODIS inputs. Switch to 2023 to show the training-period label and fixed color scale, then return to held-out 2025.
 2. Show weekly sensor counts and the published held-out model metrics.
 3. Inspect the week of 2025-07-07 in raw predictions and its signed linear gap.
 4. With a verified live server, ask “Which 2025 week had the largest calibration error?”, “Did XGBoost beat linear regression?”, and “Why can the sensors report different counts?”. Compare numeric answers with the evidence tables and methodological answers with NASA links.
 
-Live model smoke validation is included, and the user confirmed all three demo answers in the running dashboard against the reference results. No walkthrough recording is included. The challenge brief was not supplied; the local plan and official NASA notes are indexed instead. See `docs/sources.md` for provenance and limitations.
+Live model smoke validation is included, and the user confirmed all three demo answers in the running dashboard against the reference results. The Docker deployment also passed the live benchmark and dashboard checks described above. No walkthrough recording is included. The challenge page and supplied considerations were reviewed for alignment; the retrieval corpus still indexes the local plan and official NASA notes. See `docs/sources.md` for provenance and limitations.
 
-Environment note: earlier server launches were blocked by sandbox socket permissions (`Operation not permitted`). The user has since supplied a screenshot of the dashboard running at `localhost:8501`. Automated checks use Streamlit's in-process AppTest; an independent browser walkthrough and live model validation remain pending. Blank calendar cells for adjacent months no longer inherit observation colors.
+Environment note: earlier server launches were blocked by sandbox socket permissions (`Operation not permitted`). The GPU-backed Docker deployment is now running at `localhost:18501` and passed live model validation. Dashboard automation uses Streamlit AppTest; an independent browser walkthrough and recording are not included. Blank calendar cells for adjacent months do not inherit observation colors.
 
 ## GitHub source distribution
 

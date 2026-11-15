@@ -1,5 +1,45 @@
 # Implementation record
 
+## Approved calibrated calendar and full GPU Docker verification
+
+The user approved the all-year calendar design and authorized continued project
+steps without further confirmation. Shared calibration fits on the same 104
+training weeks and persists a separate 155-row harmonized table with status and
+reference-scale provenance. The dashboard defaults to calibrated MODIS/XGBoost,
+offers observed VIIRS and linear alternatives, labels training fits versus held-out
+2025, fixes scales across years, and exports all-year calibrated/observed values
+and reproducibility metadata. Numeric labels use luminance-based black/white text.
+
+Tests were added before implementation for calibration, leakage, persistence,
+model absence, legacy databases, calendar selections/scales, provenance tampering
+and contrast. Full suite: 102 passed. Original raw-archive rebuild reproduced all
+prior held-out prediction values and MAE/mean-error values exactly. Offline raw
+source, metrics and all-year calibration verification passed. Independent review
+found no material issues and independently confirmed exact benchmark preservation.
+
+Full-suite integration initially exposed that automatically fitting inside
+`write_outputs` broke observation-only fixtures without training data. Persistence
+now accepts an explicit optional harmonized frame; the main pipeline supplies it,
+while existing evidence/report callers remain usable without fitting a model.
+The full suite then passed. A later visual contrast test reproduced 3.39:1 at a
+midrange color; luminance-based text selection fixed it, with regression passing.
+
+The user installed NVIDIA Container Toolkit and configured/restarted Docker.
+A CUDA container detects the host RTX 3090. Downloaded vLLM 0.14.1 image, seeded
+the persistent model volume from existing cached Qwen weights, rebuilt the dashboard
+image and started both services successfully. Port8501 was already occupied by the
+host app; local ignored `.env` sets DASHBOARD_PORT=18501 so plain Compose commands
+preserve that app. Docker dashboard: http://localhost:18501.
+
+Live container analyst benchmark: 5/5; original demo cases 3/3; application scope
+checks 4/4. The running dashboard's Ask button matched each of the three live
+answers in container AppTest. Reports: `data/docker-smoke.json` and
+`data/docker-dashboard-check.json`. AppTest is not an operated browser/recording.
+These verified results supersede the earlier GPU-unavailable deployment notes.
+Finally stopped both services and restarted with `docker compose up -d --wait`.
+Both returned healthy; live Qwen connectivity, HTTP health and persistent
+155 calibrated/51 held-out rows were checked after restart. System left running.
+
 ## Docker deployment and author credit
 
 Added Dockerfile, a build-context allowlist, and Compose services for Streamlit

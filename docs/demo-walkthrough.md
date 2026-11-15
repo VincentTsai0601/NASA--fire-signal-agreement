@@ -17,9 +17,18 @@ Open http://localhost:8501 in Chrome. If Streamlit prints a different local port
 
 ## Recording sequence and narration
 
-1. Select **2025**. Show the totals and calendar.
+1. Select **2025**. Show the observed totals and the default **Calibrated MODIS
+   (VIIRS-equivalent)** calendar with **XGBoost**. Switch to **Observed VIIRS** to
+   compare the observed layer. Briefly switch to 2023 and point out the
+   **training-period fit** label and unchanged scale for each layer/model, then
+   return to held-out 2025.
 
    Say: “This dashboard compares satellite hotspot detections within 37–42 degrees north and 125–119 degrees west. It is a study box that extends beyond California. The 2025 totals are Terra 1,881, Aqua 2,104 and SNPP VIIRS 16,620. Each colored Monday represents a complete UTC week. Zero records do not establish the absence of fire or observing coverage.”
+
+   Add: “The calibrated layer translates MODIS counts to expected VIIRS-equivalent
+   detections using models trained on 2023–2024. Only 2025 is held out. These are
+   not unique-fire counts or forecasts. Estimates may be fractional and nonzero
+   even when MODIS records are zero.”
 
 2. Scroll to **Weekly sensor comparison** and **Held-out model comparison · 2025**.
 

@@ -6,8 +6,10 @@ import json
 import math
 from pathlib import Path
 import sqlite3
+import numpy as np
 import pandas as pd
 from evidence import Evidence
+from pipeline import calibrate, FEATURES, XGBOOST_PARAMETERS
 
 
 def _digest(path):
@@ -73,6 +75,41 @@ def _verify_metrics(weekly, predictions, metrics):
     return {'status': 'failed' if errors else 'passed', 'errors': errors, 'models': metrics}
 
 
+def _verify_harmonized(evidence, weekly, predictions, metadata):
+    errors = []
+    try:
+        stored = pd.DataFrame(evidence._query('SELECT * FROM harmonized ORDER BY week_start'))
+        expected = calibrate(weekly)
+        expected.week_start = pd.to_datetime(expected.week_start).dt.strftime('%Y-%m-%d')
+        stored.week_start = stored.week_start.str[:10]
+        if set(stored) != set(expected) or len(stored) != len(expected):
+            raise ValueError('Calibrated calendar columns or number of weeks differ')
+        for column in expected:
+            if column.endswith('_estimate'):
+                values = stored[column].to_numpy(dtype=float)
+                if not np.isfinite(values).all() or (values < 0).any() or not np.allclose(values, expected[column], rtol=1e-6, atol=1e-6):
+                    errors.append(f'{column} does not reproduce training-only calibration')
+                held = stored[stored.evaluation_status == 'held_out'][column].reset_index(drop=True)
+                if column not in predictions or len(held) != len(predictions) or not np.allclose(held, predictions[column], rtol=1e-6, atol=1e-6):
+                    errors.append(f'{column} differs from published held-out predictions')
+            elif not stored[column].reset_index(drop=True).equals(expected[column].reset_index(drop=True)):
+                errors.append(f'{column} differs from observations or calibration provenance')
+        config = metadata.get('harmonization', {})
+        for field, value in {
+            'reference_sensor': 'SNPP VIIRS', 'metric': 'VIIRS-equivalent hotspot detections',
+            'features': FEATURES, 'train_start': '2023-01-01', 'train_end': '2024-12-31',
+            'negative_estimates': 'clip to zero',
+            'models': [column.removesuffix('_estimate') for column in expected if column.endswith('_estimate')],
+        }.items():
+            if config.get(field) != value:
+                errors.append(f'Harmonization metadata {field} differs')
+        if config.get('parameters', {}).get('xgboost') != XGBOOST_PARAMETERS or not config.get('package_versions'):
+            errors.append('Missing or inconsistent calibration configuration')
+    except (sqlite3.Error, ValueError, KeyError, TypeError, AttributeError) as exc:
+        errors.append(str(exc))
+    return {'status': 'failed' if errors else 'passed', 'errors': errors}
+
+
 def verify_outputs(db_path, modis_path, viirs_path, week_start='2025-08-04'):
     report = {'checked_at': datetime.now(timezone.utc).isoformat(), 'offline_passed': False,
               'full_plan_complete': False, 'checks': {}}
@@ -109,6 +146,7 @@ def verify_outputs(db_path, modis_path, viirs_path, week_start='2025-08-04'):
             checks['raw_reconciliation'] = {'status': 'passed' if actual == published else 'failed',
                                            'start': week_start, 'end': end, 'actual': actual, 'published': published}
         checks['heldout_metrics'] = _verify_metrics(weekly, predictions, metrics)
+        checks['harmonized_calendar'] = _verify_harmonized(evidence, weekly, predictions, metadata)
         report['offline_passed'] = all(check['status'] == 'passed' for check in checks.values())
         xgb = next((row for row in metrics if row['model'] == 'xgboost'), {})
         checks['xgboost_execution'] = {'status': 'passed' if xgb.get('status') == 'available' and checks['heldout_metrics']['status'] == 'passed' else 'unavailable',

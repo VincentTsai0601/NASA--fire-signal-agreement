@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-11-15T07:20:41.862544+00:00",
+  "checked_at": "2026-11-15T10:51:08.193775+00:00",
   "offline_passed": true,
   "full_plan_complete": false,
   "checks": {
@@ -57,6 +57,10 @@
           "signed_mean_error": -1.9551792518765319
         }
       ]
+    },
+    "harmonized_calendar": {
+      "status": "passed",
+      "errors": []
     },
     "xgboost_execution": {
       "status": "passed",

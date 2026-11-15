@@ -1,0 +1,18 @@
+{
+  "method": "Streamlit AppTest inside dashboard container using live Qwen service; not a browser recording",
+  "passed": true,
+  "cases": [
+    {
+      "question": "For linear regression, which 2025 week had the largest absolute calibration error?",
+      "passed": true
+    },
+    {
+      "question": "Did XGBoost beat linear regression on 2025 held-out MAE?",
+      "passed": true
+    },
+    {
+      "question": "Why can MODIS and VIIRS sensors report different counts? Cite NASA documentation.",
+      "passed": true
+    }
+  ]
+}
